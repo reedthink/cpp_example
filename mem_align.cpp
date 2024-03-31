@@ -11,13 +11,16 @@ struct my_data
     int bf4;
     int i2;
     char c1, c2;
-    string s;
+    string s; // 占32个字节，因为内部很大
 };
 // my: 72
 
 struct char_data
 {
-    char c1,c2,c3;
+    // char c1,c2,c3;
+    class cls{
+        string n[4];
+    } a;
 };
 
 struct char_data_with_ptr
@@ -28,14 +31,22 @@ struct char_data_with_ptr
     int kk;
     char *ptr;
 };
-//对齐的逻辑：对齐标准是最长的那个变量，所以大小永远是最大值的倍数，至于其他变量则是尽可能紧凑的放置。
+// struct (class)对齐的逻辑：对齐标准是最长的那个变量，但是最大值也就是平台位数/8。所以大小永远是最大值的倍数，至于其他变量则是尽可能紧凑的放置。
 // 查看内存布局： clang++ -Xclang -fdump-record-layouts -c mem_align.cpp
+
+//union 的大小至少足以保有其最大的数据成员，但通常不会更大。
+union my_union{
+    int a;
+    string s;
+};
 
 int main()
 {
-    cout << sizeof(my_data) << endl;
-    cout << sizeof(char_data) << endl;
-    cout << sizeof(char_data_with_ptr) << endl;
+    // cout << sizeof(my_data) << endl;
+    // cout << sizeof(char_data) << endl;
+    // cout << sizeof(char_data_with_ptr) << endl;
+
+    cout << sizeof(my_union) << endl;
     return 0;
 }
 
