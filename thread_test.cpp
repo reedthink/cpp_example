@@ -66,9 +66,44 @@ void solve2()
     cout << this_thread::get_id() << endl;
 }
 
+//有四个线程1、2、3、4。线程1的功能就是输出1，线程2的功能就是输出2，以此类推.........现在有四个文件ABCD。初始都为空。现要让四个文件呈如下格式：
+// A：1 2 3 4 1 2....
+// B：2 3 4 1 2 3....
+// C：3 4 1 2 3 4....
+
+// D：4 1 2 3 4 1....
+
+void func3(int print_num, int offset)
+{
+    for(int i=0;i<loop;i++)
+    {
+        unique_lock<mutex> lk(mtx);
+        cv.wait(lk, [&]{return print_num == flag%4;});// 阻塞, 等总打印数符合要求的时候才继续
+        flag +=1;
+        cout << (print_num+offset)%4+1 << " thread id: " << this_thread::get_id() << endl;
+        cv.notify_all();
+    }
+}
+
+void solve3()
+{
+    vector<thread> v;
+    flag = 0;
+    for(int i=0; i<4; i++)
+    {
+        //设置offset区分文件abcd
+        v.emplace_back([i]{func3(i,0);});
+    }
+    for(auto &&it: v)
+    {
+        it.join();
+    }
+}
+
 int main()
 {
     // solve1();
-    solve2();
+    // solve2();
+    solve3();
     return 0;
 }
