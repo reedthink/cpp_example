@@ -1,3 +1,4 @@
+#include <future>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -100,10 +101,67 @@ void solve3()
     }
 }
 
+/*
+问题4
+1）有一int型全局变量g_Flag初始值为0
+
+2） 在主线程中启动线程1，打印“this is thread1”，并将g_Flag设置为1
+
+3） 在主线程中启动线程2，打印“this is thread2”，并将g_Flag设置为2
+
+4） 线程1需要在线程2退出后才能退出 
+
+5） 主线程在检测到g_Flag从1变为2，或者从2变为1的时候退出
+*/
+// int g_Flag = 0;
+
+atomic<int> g_Flag(0);
+
+void func4_1(future<int> fut)
+{
+    printf("this is thread1\n");
+    g_Flag = 1;
+    //通过get或者wait实现阻塞
+    fut.wait();
+    // fut.get();
+    printf("thread 1 exit\n");
+}
+
+void func4_2(promise<int> prom)
+{
+    g_Flag = 2;
+    printf("this is thread2\n");
+    prom.set_value_at_thread_exit(0);
+    printf("thread 2 exit\n");
+}
+
+void solve4()
+{
+    // cout << thread::hardware_concurrency() << endl;
+    promise<int> prom;
+    auto fut = prom.get_future();
+    thread t1{func4_1, move(fut)};
+    thread t2{func4_2, move(prom)};
+
+    t1.detach();
+    t2.detach();
+    //朴实无华的阻塞
+    while(g_Flag.load()==0) // load读取才能保证不会脏读
+    {
+        ;
+        // cout << g_Flag.load() << endl;
+    }
+    cout << "main exit" << endl;
+
+    //稍等片刻，给子线程输出的机会
+    this_thread::sleep_for(1000ms);
+}
+
 int main()
 {
     // solve1();
     // solve2();
-    solve3();
+    // solve3();
+    solve4();
     return 0;
 }
