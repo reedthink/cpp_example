@@ -25,6 +25,7 @@ int main()
         return a + b;
     };
 
+    std::cout << [&] { return x + y; }() << std::endl;
     std::cout << addByLambda() << std::endl;
     std::cout << add2ByLambda(x, z) << std::endl; // 不仅可以用捕获的参数，还能用传入的
 
