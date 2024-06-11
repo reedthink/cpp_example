@@ -32,6 +32,7 @@ struct char_data_with_ptr
     char *ptr;
 };
 // struct (class)对齐的逻辑：对齐标准是最长的那个变量，但是最大值也就是平台位数/8。所以大小永远是最大值的倍数，至于其他变量则是尽可能紧凑的放置。
+// 能放就放，在对齐的前提下，尽可能保证空洞数量少
 // 查看内存布局： clang++ -Xclang -fdump-record-layouts -c mem_align.cpp
 
 //union 的大小至少足以保有其最大的数据成员，但通常不会更大。
